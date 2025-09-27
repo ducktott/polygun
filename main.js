@@ -209,29 +209,10 @@ function init() {
     
     // objects
 
-    const boxGeometry = new THREE.BoxGeometry( 20, 20, 20 ).toNonIndexed();
-    const boxMaterial = new THREE.MeshBasicMaterial({color: 0x00ff00, wireframe: true});
-
-    for ( let i = 0; i < 500; i ++ ) {
-        const box = new THREE.Mesh( boxGeometry, boxMaterial );
-        box.position.x = Math.floor( Math.random() * 20 - 10 ) * 20;
-        box.position.y = Math.floor( Math.random() * 20 ) * 20 + 10;
-        box.position.z = Math.floor( Math.random() * 20 - 10 ) * 20;
-
-        box.velocity = new THREE.Vector3(
-            (Math.random() - 0.5) * 50,
-            0, // they will only move on the XZ plane
-            (Math.random() - 0.5) * 50
-        );
-
-        scene.add( box );
-        objects.push( box );
-
-        const boxHelper = new THREE.BoxHelper(box, 0xff0000);
-        boxHelper.visible = false;
-        scene.add(boxHelper);
-        boxHelpers.push(boxHelper);
+    for ( let i = 0; i < 100; i ++ ) {
+        createEnemy();
     }
+
 
     //
 
@@ -253,6 +234,55 @@ function onWindowResize() {
 
     renderer.setSize( window.innerWidth, window.innerHeight );
 
+}
+
+function createEnemy() {
+    const enemy = new THREE.Group();
+
+    // Body
+    const bodyGeometry = new THREE.CylinderGeometry(5, 5, 20, 8);
+    const bodyMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff });
+    const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+    body.position.y = 10;
+    enemy.add(body);
+
+    // Head
+    const headGeometry = new THREE.SphereGeometry(5, 8, 8);
+    const headMaterial = new THREE.MeshBasicMaterial({ color: 0xffd2a6 });
+    const head = new THREE.Mesh(headGeometry, headMaterial);
+    head.position.y = 25;
+    enemy.add(head);
+
+    // Hat
+    const hatGeometry = new THREE.CylinderGeometry(7, 7, 2, 8);
+    const hatMaterial = new THREE.MeshBasicMaterial({ color: 0x555555 });
+    const hat = new THREE.Mesh(hatGeometry, hatMaterial);
+    hat.position.y = 29;
+    enemy.add(hat);
+    
+    const hatBrimGeometry = new THREE.CylinderGeometry(9, 9, 1, 8);
+    const hatBrim = new THREE.Mesh(hatBrimGeometry, hatMaterial);
+    hatBrim.position.y = 28;
+    enemy.add(hatBrim);
+
+
+    enemy.position.x = Math.floor( Math.random() * 20 - 10 ) * 20;
+    enemy.position.y = 0;
+    enemy.position.z = Math.floor( Math.random() * 20 - 10 ) * 20;
+
+    enemy.velocity = new THREE.Vector3(
+        (Math.random() - 0.5) * 50,
+        0,
+        (Math.random() - 0.5) * 50
+    );
+
+    scene.add( enemy );
+    objects.push( enemy );
+
+    const boxHelper = new THREE.BoxHelper(enemy, 0xff0000);
+    boxHelper.visible = false;
+    scene.add(boxHelper);
+    boxHelpers.push(boxHelper);
 }
 
 function dash() {
@@ -369,7 +399,7 @@ function animate() {
         // Collision detection
         for (let j = objects.length - 1; j >= 0; j--) {
             const box = objects[j];
-            if (projectile.position.distanceTo(box.position) < 15) { // AABB approximation
+            if (projectile.position.distanceTo(box.position) < 30) { 
                 scene.remove(projectile);
                 projectiles.splice(i, 1);
                 
